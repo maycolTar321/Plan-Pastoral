@@ -2,28 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema Pastoral</title>
+    <title>Plan Pastoral</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');
-        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
-        .box { background: #1e293b; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .view { display: none; } .active { display: block; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #334155; border: none; border-radius: 8px; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #38bdf8; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
-        td, th { padding: 10px; border: 1px solid #475569; }
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
+        .box { background: #1e293b; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #334155; border: none; border-radius: 8px; color: white; }
+        button { width: 100%; padding: 15px; background: #38bdf8; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="login-view" class="view active box">
-    <h2>Inicio de Sesión</h2>
-    <input type="text" id="user" placeholder="Usuario">
-    <input type="password" id="pass" placeholder="Contraseña">
-    <button onclick="login()">Ingresar</button>
-</div>
-
-<div id="catequista-view" class="view box">
+<div id="catequista-view" class="box">
     <h2>Nueva Propuesta</h2>
     <input id="nombre" placeholder="Nombre">
     <select id="cat"><option>Formación</option><option>Social</option><option>Convivencia</option></select>
@@ -34,47 +23,33 @@
     <button onclick="enviar()">Enviar Propuesta</button>
 </div>
 
-<div id="admin-view" class="view box" style="max-width: 800px;">
-    <h2>Panel Admin</h2>
-    <button onclick="cargar()">Refrescar Datos</button>
-    <table>
-        <thead><tr><th>Nombre</th><th>Actividad</th><th>Meta</th><th>Acción</th></tr></thead>
-        <tbody id="contenido"></tbody>
-    </table>
-</div>
-
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbwqZmoh3L0VTHOpZUQZsk4ZeYFPaFR_TK2S3_tipPz-pXgUV9QVG88JVBfkno4b1jKQ/exec"; // <--- PEGA TU URL DE IMPLEMENTACIÓN AQUÍ
-
-    function login() {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-        if(u === 'cat2026' && p === 'confir26') show('catequista-view');
-        else if(u === 'admin' && p === 'admin123') { show('admin-view'); cargar(); }
-        else alert("Credenciales incorrectas");
-    }
-
-    function show(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+    // PEGA AQUÍ TU URL (asegúrate de que sea la de la "Nueva Versión")
+    const API = "https://script.google.com/macros/s/AKfycby_I1vwM-JtOkg5Bid3S3Tp7N06zGbIU9U72hr0zZoNsRQdnAw0UbhiJyr8P6hMZgo/exec";
 
     async function enviar() {
-        const data = { action: 'add', nombre: document.getElementById('nombre').value, categoria: document.getElementById('cat').value, actividad: document.getElementById('actividad').value, inicio: document.getElementById('inicio').value, fin: document.getElementById('fin').value, meta: document.getElementById('meta').value };
-        const res = await fetch(API, { method: 'POST', mode: 'cors', body: JSON.stringify(data) });
-        if(res.ok) alert("Enviado con éxito");
-    }
-
-    async function cargar() {
-        const res = await fetch(API, { mode: 'cors' });
-        const data = await res.json();
-        document.getElementById('contenido').innerHTML = data.map((f, i) => `<tr><td>${f[1]}</td><td>${f[3]}</td><td>${f[6]}</td><td><button onclick="del(${i})">X</button></td></tr>`).join('');
-    }
-    
-    async function del(i) {
-        await fetch(API, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete', index: i }) });
-        cargar();
+        const data = { 
+            action: 'add', 
+            nombre: document.getElementById('nombre').value, 
+            categoria: document.getElementById('cat').value, 
+            actividad: document.getElementById('actividad').value, 
+            inicio: document.getElementById('inicio').value, 
+            fin: document.getElementById('fin').value, 
+            meta: document.getElementById('meta').value 
+        };
+        
+        try {
+            const res = await fetch(API, { 
+                method: 'POST', 
+                body: JSON.stringify(data) 
+            });
+            alert("Enviado con éxito");
+        } catch(e) { 
+            alert("Error: " + e.message); 
+        }
     }
 </script>
+</body>
+</html>
 </body>
 </html>
