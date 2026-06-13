@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Pastoral | Registro Inteligente</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+        
+        body { 
+            background: #0f172a; 
+            font-family: 'Outfit', sans-serif; 
+            color: #f1f5f9; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 25px; 
+            width: 100%; 
+            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 25px; }
+        
+        .info-box {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid #38bdf8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+
+        label { display: block; margin-top: 15px; font-weight: 600; color: #cbd5e1; }
+        .help-text { font-size: 0.75rem; color: #94a3b8; margin-bottom: 5px; }
+
+        input, select, textarea { 
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #334155; 
+            background: #1e293b; color: white; box-sizing: border-box; font-family: inherit;
+        }
+
+        #campoOtro { display: none; margin-top: 10px; }
+
+        .date-container { display: flex; gap: 10px; }
+        .date-box { flex: 1; }
+
+        button { 
+            width: 100%; padding: 16px; margin-top: 30px; border-radius: 12px; 
+            border: none; background: #38bdf8; color: #0f172a; font-weight: bold; 
+            cursor: pointer; transition: 0.3s;
+        }
+
+        button:hover { background: #7dd3fc; }
+        button:disabled { background: #64748b; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🚀 Plan Pastoral</h2>
+    
+    <div class="info-box">
+        Por favor, completa este registro con cuidado. Esta información es la base de nuestra nueva hoja de ruta pastoral.
+    </div>
+    
+    <form id="formPlan">
+        <label>¿Quién propone?</label>
+        <div class="help-text">Nombre completo del catequista.</div>
+        <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
+
+        <label>Categoría de actividad</label>
+        <div class="help-text">Elige la opción que mejor describa tu idea.</div>
+        <select id="tipo" required onchange="verificarOtro(this.value)">
+            <option value="" disabled selected>-- Toca aquí para elegir --</option>
+            <option value="Formación">Formación (Charlas, Biblia)</option>
+            <option value="Convivencia">Convivencia (Retiros, juegos)</option>
+            <option value="Acción Social">Acción Social (Ayuda, visitas)</option>
+            <option value="Otro">Otro (Escribe tu propia categoría)</option>
+        </select>
+        <input type="text" id="campoOtro" placeholder="Escribe aquí tu categoría">
+
+        <label>Nombre de la actividad</label>
+        <input type="text" id="actividad" required placeholder="Ej: Retiro de Bienvenida">
+
+        <label>Rango de fechas (Tentativo)</label>
+        <div class="date-container">
+            <div class="date-box">
+                <div class="help-text">Inicio</div>
+                <input type="date" id="fechaInicio" required>
+            </div>
+            <div class="date-box">
+                <div class="help-text">Fin</div>
+                <input type="date" id="fechaFin" required>
+            </div>
+        </div>
+
+        <label>¿Qué buscamos lograr?</label>
+        <textarea id="meta" required placeholder="Ej: Integrar a los nuevos jóvenes en la comunidad..."></textarea>
+
+        <button type="submit" id="btnEnviar">Enviar mi propuesta</button>
+    </form>
+</div>
+
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwqZmoh3L0VTHOpZUQZsk4ZeYFPaFR_TK2S3_tipPz-pXgUV9QVG88JVBfkno4b1jKQ/exec";
+
+    function verificarOtro(valor) {
+        const campo = document.getElementById('campoOtro');
+        campo.style.display = (valor === 'Otro') ? 'block' : 'none';
+        campo.required = (valor === 'Otro');
+    }
+
+    document.getElementById('formPlan').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnEnviar');
+        btn.innerText = "Enviando...";
+        btn.disabled = true;
+
+        // Lógica de categoría
+        let categoriaFinal = document.getElementById('tipo').value;
+        if (categoriaFinal === "Otro") {
+            categoriaFinal = "Otro: " + document.getElementById('campoOtro').value;
+        }
+
+        // Lógica de fechas
+        const fInicio = document.getElementById('fechaInicio').value;
+        const fFin = document.getElementById('fechaFin').value;
+        const rangoFecha = fInicio + " al " + fFin;
+
+        const data = {
+            nombre: document.getElementById('nombre').value,
+            tipo: categoriaFinal,
+            actividad: document.getElementById('actividad').value,
+            fecha: rangoFecha,
+            meta: document.getElementById('meta').value
+        };
+
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(data)
+            });
+            alert("¡Recibido! Tu idea ya está en el repositorio.");
+            document.getElementById('formPlan').reset();
+            document.getElementById('campoOtro').style.display = 'none';
+        } catch (error) {
+            alert("Error al enviar. Revisa tu conexión.");
+        } finally {
+            btn.innerText = "Enviar mi propuesta";
+            btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>
