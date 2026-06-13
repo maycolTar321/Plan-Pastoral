@@ -2,49 +2,50 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema Pastoral</title>
+    <title>Plan Pastoral</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
-        .box { background: #1e293b; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .view { display: none; } .active { display: block; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #334155; border: none; border-radius: 8px; color: white; }
-        button { width: 100%; padding: 12px; background: #38bdf8; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
-        td, th { padding: 8px; border: 1px solid #475569; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; animation: fadeIn 0.8s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); padding: 40px; border-radius: 25px; width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .view { display: none; } .active { display: block; animation: slideUp 0.5s; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        input, select, textarea { width: 100%; padding: 15px; margin: 12px 0; background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 12px; color: white; transition: 0.3s; }
+        input:focus { border-color: #38bdf8; outline: none; }
+        button { width: 100%; padding: 15px; background: #38bdf8; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; color: #000; }
+        button:hover { background: #7dd3fc; transform: scale(1.02); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        td, th { padding: 15px; border: 1px solid #334155; }
     </style>
 </head>
 <body>
 
 <div id="login-view" class="view active box">
-    <h2>Inicio de Sesión</h2>
+    <h2 style="text-align:center">🔐 Acceso</h2>
     <input type="text" id="user" placeholder="Usuario">
     <input type="password" id="pass" placeholder="Contraseña">
     <button onclick="login()">Ingresar</button>
 </div>
 
 <div id="catequista-view" class="view box">
-    <h2>Nueva Actividad</h2>
-    <input id="nombre" placeholder="Tu Nombre">
-    <select id="cat"><option value="Formacion">Formación</option><option value="Social">Social</option></select>
+    <h2>🚀 Nueva Propuesta</h2>
+    <input id="nombre" placeholder="Nombre Completo">
+    <select id="cat"><option>Formación</option><option>Social</option><option>Convivencia</option></select>
     <input id="actividad" placeholder="Nombre Actividad">
     <input type="date" id="inicio">
     <input type="date" id="fin">
-    <textarea id="meta" placeholder="Meta"></textarea>
+    <textarea id="meta" placeholder="¿Qué buscamos lograr?"></textarea>
     <button onclick="enviar()">Enviar Propuesta</button>
 </div>
 
-<div id="admin-view" class="view box" style="max-width: 800px;">
-    <h2>Panel Admin</h2>
-    <button onclick="cargar()">Refrescar Datos</button>
-    <table>
-        <thead><tr><th>Nombre</th><th>Actividad</th><th>Meta</th><th>Acción</th></tr></thead>
-        <tbody id="contenido"></tbody>
-    </table>
+<div id="admin-view" class="view box" style="max-width: 900px;">
+    <h2>📊 Dashboard Admin</h2>
+    <table id="tabla"><thead><tr><th>Nombre</th><th>Actividad</th><th>Meta</th><th>Acción</th></tr></thead><tbody id="contenido"></tbody></table>
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbwqZmoh3L0VTHOpZUQZsk4ZeYFPaFR_TK2S3_tipPz-pXgUV9QVG88JVBfkno4b1jKQ/exec";
-
+    const API = "https://script.google.com/macros/s/AKfycbwqZmoh3L0VTHOpZUQZsk4ZeYFPaFR_TK2S3_tipPz-pXgUV9QVG88JVBfkno4b1jKQ/exec"; // 
+    
     function login() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
@@ -59,19 +60,25 @@
     }
 
     async function enviar() {
-        const data = { action:'add', nombre:document.getElementById('nombre').value, categoria:document.getElementById('cat').value, actividad:document.getElementById('actividad').value, inicio:document.getElementById('inicio').value, fin:document.getElementById('fin').value, meta:document.getElementById('meta').value };
+        const data = { action: 'add', nombre: document.getElementById('nombre').value, categoria: document.getElementById('cat').value, actividad: document.getElementById('actividad').value, inicio: document.getElementById('inicio').value, fin: document.getElementById('fin').value, meta: document.getElementById('meta').value };
+        const btn = event.target;
+        btn.innerText = "Enviando...";
         try {
-            await fetch(API, { method:'POST', body:JSON.stringify(data) });
-            alert("Enviado correctamente");
-        } catch(e) { alert("Error al enviar: " + e.message); }
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify(data) });
+            alert("¡Éxito! Propuesta registrada.");
+            btn.innerText = "Enviar Propuesta";
+        } catch(e) { alert("Error: " + e.message); btn.innerText = "Enviar Propuesta"; }
     }
 
     async function cargar() {
-        try {
-            const res = await fetch(API);
-            const data = await res.json();
-            document.getElementById('contenido').innerHTML = data.map((f, i) => `<tr><td>${f[1]}</td><td>${f[3]}</td><td>${f[6]}</td><td><button onclick="del(${i})">X</button></td></tr>`).join('');
-        } catch(e) { alert("Error al cargar: " + e.message); }
+        const res = await fetch(API);
+        const data = await res.json();
+        document.getElementById('contenido').innerHTML = data.map((f, i) => `<tr><td>${f[1]}</td><td>${f[3]}</td><td>${f[6]}</td><td><button onclick="del(${i})">X</button></td></tr>`).join('');
+    }
+
+    async function del(i) {
+        await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'delete', index: i }) });
+        cargar();
     }
 </script>
 </body>
