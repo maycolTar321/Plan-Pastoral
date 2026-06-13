@@ -2,110 +2,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plan Pastoral PRO</title>
+    <title>Sistema Pastoral</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');
-        :root { --glass: rgba(255, 255, 255, 0.08); --accent: #38bdf8; }
-        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
-        .box { background: var(--glass); backdrop-filter: blur(20px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
+        .box { background: #1e293b; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .view { display: none; } .active { display: block; }
-        h1, h2 { text-align: center; color: var(--accent); }
-        label { display: block; margin: 15px 0 5px; font-size: 0.9rem; color: #94a3b8; }
-        input, select, textarea { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; }
-        .date-group { display: flex; gap: 10px; }
-        button { width: 100%; padding: 15px; margin-top: 20px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #0f172a; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 12px; border: 1px solid #334155; text-align: left; }
-        .btn-gen { background: #10b981; color: white; margin-top: 10px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #334155; border: none; border-radius: 8px; color: white; }
+        button { width: 100%; padding: 12px; background: #38bdf8; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
+        td, th { padding: 8px; border: 1px solid #475569; }
     </style>
 </head>
 <body>
 
 <div id="login-view" class="view active box">
-    <h2>Acceso al Sistema</h2>
+    <h2>Inicio de Sesión</h2>
     <input type="text" id="user" placeholder="Usuario">
     <input type="password" id="pass" placeholder="Contraseña">
     <button onclick="login()">Ingresar</button>
 </div>
 
 <div id="catequista-view" class="view box">
-    <h2>Nueva Propuesta</h2>
-    <label>Nombre del Catequista</label>
-    <input id="nombre" placeholder="Ej: Juan Pérez">
-    
-    <label>Categoría</label>
-    <select id="categoria"><option value="Formación">Formación</option><option value="Social">Social</option><option value="Convivencia">Convivencia</option></select>
-    
-    <label>Nombre de la actividad</label>
-    <input id="actividad" placeholder="Ej: Retiro Espiritual">
-    
-    <div class="date-group">
-        <div style="flex:1"><label>Inicio</label><input type="date" id="inicio"></div>
-        <div style="flex:1"><label>Fin</label><input type="date" id="fin"></div>
-    </div>
-    
-    <label>Objetivo (¿Qué buscamos lograr?)</label>
-    <textarea id="meta" rows="3" placeholder="Ej: Lograr que los jóvenes se sientan parte de la comunidad..."></textarea>
-    
-    <button onclick="enviarForm()">Enviar Propuesta</button>
+    <h2>Nueva Actividad</h2>
+    <input id="nombre" placeholder="Tu Nombre">
+    <select id="cat"><option value="Formacion">Formación</option><option value="Social">Social</option></select>
+    <input id="actividad" placeholder="Nombre Actividad">
+    <input type="date" id="inicio">
+    <input type="date" id="fin">
+    <textarea id="meta" placeholder="Meta"></textarea>
+    <button onclick="enviar()">Enviar Propuesta</button>
 </div>
 
-<div id="admin-view" class="view box" style="max-width: 900px;">
-    <h2>Dashboard Administrativo</h2>
-    <button class="btn-gen" onclick="generarProyecto()">🚀 Generar Estructura de Proyecto</button>
-    <table id="tabla">
-        <thead><tr><th>Nombre</th><th>Actividad</th><th>Fechas</th><th>Meta</th></tr></thead>
+<div id="admin-view" class="view box" style="max-width: 800px;">
+    <h2>Panel Admin</h2>
+    <button onclick="cargar()">Refrescar Datos</button>
+    <table>
+        <thead><tr><th>Nombre</th><th>Actividad</th><th>Meta</th><th>Acción</th></tr></thead>
         <tbody id="contenido"></tbody>
     </table>
-    <textarea id="output" style="margin-top:20px; display:none; height:100px;"></textarea>
 </div>
 
 <script>
     const API = "https://script.google.com/macros/s/AKfycbwqZmoh3L0VTHOpZUQZsk4ZeYFPaFR_TK2S3_tipPz-pXgUV9QVG88JVBfkno4b1jKQ/exec";
-    
+
     function login() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
-        if(u === 'cat2026' && p === 'confir26') showView('catequista-view');
-        else if(u === 'admin' && p === 'admin123') { showView('admin-view'); cargar(); }
+        if(u === 'cat2026' && p === 'confir26') show('catequista-view');
+        else if(u === 'admin' && p === 'admin123') { show('admin-view'); cargar(); }
         else alert("Credenciales incorrectas");
     }
 
-    function showView(id) {
+    function show(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    async function enviarForm() {
-        const data = { 
-            action: 'add', 
-            nombre: document.getElementById('nombre').value, 
-            categoria: document.getElementById('categoria').value, 
-            actividad: document.getElementById('actividad').value, 
-            fechas: document.getElementById('inicio').value + " al " + document.getElementById('fin').value, 
-            meta: document.getElementById('meta').value 
-        };
-        await fetch(API, { method: 'POST', body: JSON.stringify(data) });
-        alert("¡Enviado con éxito!");
+    async function enviar() {
+        const data = { action:'add', nombre:document.getElementById('nombre').value, categoria:document.getElementById('cat').value, actividad:document.getElementById('actividad').value, inicio:document.getElementById('inicio').value, fin:document.getElementById('fin').value, meta:document.getElementById('meta').value };
+        try {
+            await fetch(API, { method:'POST', body:JSON.stringify(data) });
+            alert("Enviado correctamente");
+        } catch(e) { alert("Error al enviar: " + e.message); }
     }
 
     async function cargar() {
-        const res = await fetch(API);
-        const data = await res.json();
-        document.getElementById('contenido').innerHTML = data.map(f => `<tr><td>${f[1]}</td><td>${f[3]}</td><td>${f[4]}</td><td>${f[5]}</td></tr>`).join('');
-    }
-
-    function generarProyecto() {
-        const rows = document.querySelectorAll('#contenido tr');
-        let texto = "PLAN PASTORAL INTEGRADO\n\nACTIVIDADES:\n";
-        rows.forEach(r => {
-            const c = r.querySelectorAll('td');
-            texto += `- ${c[1].innerText} | Fecha: ${c[2].innerText} | Meta: ${c[3].innerText}\n`;
-        });
-        const out = document.getElementById('output');
-        out.style.display = "block";
-        out.value = texto;
-        alert("Estructura generada. Copia el texto de abajo y pégalo en el chat para terminar el plan.");
+        try {
+            const res = await fetch(API);
+            const data = await res.json();
+            document.getElementById('contenido').innerHTML = data.map((f, i) => `<tr><td>${f[1]}</td><td>${f[3]}</td><td>${f[6]}</td><td><button onclick="del(${i})">X</button></td></tr>`).join('');
+        } catch(e) { alert("Error al cargar: " + e.message); }
     }
 </script>
 </body>
